@@ -22,8 +22,8 @@ Places quick-access buttons (Profile, Repositories, Stars, Gists etc.) directly 
 
 1. Install [Tampermonkey](https://www.tampermonkey.net/) (or another userscript manager).  
 2. Install the script from one of the mirrors:  
-   - [GreasyFork](https://greasyfork.org/en/scripts/553502-github-add-shortcuts-to-page-header)  
-   - [OpenUserJS](https://openuserjs.org/scripts/Vikindor/GitHub_-_Add_Shortcuts_To_Page_Header)  
+   - [GreasyFork](https://greasyfork.org/en/scripts/553502-github-enhanced-shortcuts-header-toolbar)  
+   - [OpenUserJS](https://openuserjs.org/scripts/Vikindor/GitHub_-_Enhanced_Shortcuts_Header_Toolbar)  
    - or [download directly from this repository](./GitHub_-_Enhanced_Shortcuts_And_Header_Toolbar.js).
 
 ## 🔧 Configuration
