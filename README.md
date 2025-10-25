@@ -2,17 +2,18 @@
 GitHub - Enhanced Shortcuts & Header Toolbar
 </h1>
 
-Userscript for browsers that adds a customizable shortcut bar to the GitHub and Gist page headers.
-Places quick-access buttons (Profile, Repositories, Stars, Gists etc.) directly in the top navigation with tooltips and hotkey hints.
+Userscript for browsers that extends GitHub navigation with a customizable header toolbar and unified, layout‑independent keyboard shortcuts.
 
 ## ✨ Features
 
 - Works on both **github.com** and **gist.github.com**
-- Configurable set of header buttons in the `CONFIG` section
-- Adjustable order via `CONFIG.order`
+- Adds quick-access buttons (Repositories, Stars, Gists, etc.) to the header
+- Enhances **native GitHub shortcuts (G + ...)**: they work on **any** keyboard layout now
+- Repo-context awareness — switches between repository tabs or global pages automatically
+- Custom shortcuts for personal sections (Repositories, Stars, Packages, Gists, etc.)
+- Configurable buttons in the `CONFIG` block with adjustable order
 - Automatically restores after PJAX (SPA) navigations
-- Tooltips display assigned keyboard shortcuts (for example **G + R**)
-- Native GitHub styling and dark/light theme support
+- Native GitHub styling, dark/light theme support
 
 ## 🖼 Screenshots
 
