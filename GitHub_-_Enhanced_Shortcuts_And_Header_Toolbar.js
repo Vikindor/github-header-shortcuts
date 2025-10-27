@@ -2,7 +2,7 @@
 // @name         GitHub - Enhanced Shortcuts & Header Toolbar
 // @namespace    github-header-shortcuts
 // @version      1.2.2
-// @description  Extends GitHub navigation: adds a header toolbar and fixes native shortcuts to work on any keyboard layout.
+// @description  Extends GitHub navigation: adds a header toolbar and fixes native shortcuts to work on any keyboard layout
 // @author       Vikindor (https://vikindor.github.io/)
 // @homepageURL  https://github.com/Vikindor/github-header-shortcuts/
 // @supportURL   https://github.com/Vikindor/github-header-shortcuts/issues
