@@ -86,7 +86,3 @@ All shortcuts work regardless of current keyboard layout.
 | **Enterprises** | G + E | `https://github.com/settings/enterprises` |
 | **Issues** | G + I | Context-aware (Repo or Global) |
 | **Pull requests** | G + P | Context-aware (Repo or Global) |
-
-## 📄 License
-
-[MIT License](LICENSE) © [Vikindor](https://vikindor.github.io/)
