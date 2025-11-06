@@ -15,7 +15,7 @@ Userscript for browsers that extends GitHub navigation with a customizable heade
 - Automatically restores after PJAX (SPA) navigations
 - Native GitHub styling, dark/light theme support
 
-## 🖼 Screenshots
+## 🖼 Screenshot
 
 <img src="media/github_header.jpg" width="100%" alt="GitHub header shortcuts screenshot" title="GitHub header shortcuts"/>
 
