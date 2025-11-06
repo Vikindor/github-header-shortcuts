@@ -72,6 +72,7 @@ All shortcuts work regardless of current keyboard layout.
 | **G + J** | Your Gists | Global |
 | **G + O** | Organizations | Global |
 | **G + E** | Enterprises | Global |
+| **Shift + ?** | Keyboard shortcuts | Global |
 
 ## 📦 Header Buttons
 
