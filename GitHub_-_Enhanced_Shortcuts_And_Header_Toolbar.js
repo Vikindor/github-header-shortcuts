@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GitHub - Enhanced Shortcuts & Header Toolbar
 // @namespace    github-header-shortcuts
-// @version      1.2.2
+// @version      1.2.4
 // @description  Extends GitHub navigation: adds a header toolbar and fixes native shortcuts to work on any keyboard layout
 // @author       Vikindor (https://vikindor.github.io/)
 // @homepageURL  https://github.com/Vikindor/github-header-shortcuts/
@@ -44,8 +44,7 @@
         display:flex; align-items:center; gap:8px; flex-wrap:nowrap;
       }
       #${ID_CONTAINER} a{
-        display:inline-flex; align-items:center; gap:6px;
-        white-space:nowrap;
+        display:inline-flex; align-items:center; white-space:nowrap;
       }
       #${ID_CONTAINER} a span{
         white-space:nowrap;
@@ -82,7 +81,7 @@
     const a = document.createElement('a');
     a.href = info.href(getUserLogin());
     a.className =
-      'AppHeader-link d-flex flex-items-center gap-1 no-underline color-fg-muted hover-color-fg-default';
+      'AppHeader-link d-flex flex-items-center gap-2 no-underline color-fg-muted hover-color-fg-default';
     a.style.margin = '0 5px';
     a.title = info.tooltip || info.title;
     a.innerHTML = `
@@ -230,26 +229,27 @@
   };
 
   (() => {
-    let buf = [];
-    let timer = null;
+    let buf = [], timer = null;
     const reset = () => { buf = []; if (timer) { clearTimeout(timer); timer = null; } };
     const wait = () => { if (timer) clearTimeout(timer); timer = setTimeout(reset, 800); };
-    const hasPrefix = (seq) => { for (const k of HOTKEY_MAP.keys()) if (k.startsWith(seq)) return true; return false; };
-    const isTyping = (el) => el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable || el.closest?.('[contenteditable="true"]'));
-    window.addEventListener('keydown', (e) => {
-      if (e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
+    const hasPrefix = seq => { for (const k of HOTKEY_MAP.keys()) if (k.startsWith(seq)) return true; return false; };
+    const isTyping = el => el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable || el.closest?.('[contenteditable="true"]'));
+
+    window.addEventListener('keydown', e => {
+      if (!e.isTrusted || e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
       if (isTyping(document.activeElement)) return;
+
+      if (e.shiftKey && e.code === 'Slash') {
+        e.preventDefault();
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: '?', code: 'Slash', shiftKey: true, bubbles: true }));
+        reset(); return;
+      }
+
       buf.push(e.code);
       const seq = buf.join(' ');
-      if (HOTKEY_MAP.has(seq)) {
-        const handled = HOTKEY_MAP.get(seq)();
-        if (handled) e.preventDefault();
-        reset();
-        return;
-      }
-      if (hasPrefix(seq)) { wait(); return; }
-      reset();
-    }, true);
+      if (HOTKEY_MAP.has(seq)) { const handled = HOTKEY_MAP.get(seq)(); if (handled !== false) reset(); else wait(); return; }
+      hasPrefix(seq) ? wait() : reset();
+    });
   })();
 
   const observer = new MutationObserver(() => {
