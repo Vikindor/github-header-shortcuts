@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GitHub - Enhanced Shortcuts & Header Toolbar
 // @namespace    github-header-shortcuts
-// @version      1.2.4
+// @version      1.2.6
 // @description  Extends GitHub navigation: adds a header toolbar and fixes native shortcuts to work on any keyboard layout
 // @author       Vikindor (https://vikindor.github.io/)
 // @homepageURL  https://github.com/Vikindor/github-header-shortcuts/
@@ -41,12 +41,12 @@
         background-color:var(--borderColor-default,#30363d); opacity:.6; align-self:center;
       }
       #${ID_CONTAINER}{
-        display:flex; align-items:center; gap:8px; flex-wrap:nowrap;
+        display:flex; align-items:center; gap:8px; flex-wrap:nowrap; margin-right:5px;
       }
-      #${ID_CONTAINER} a{
+      #${ID_CONTAINER} .gh-shortcut-link{
         display:inline-flex; align-items:center; white-space:nowrap;
       }
-      #${ID_CONTAINER} a span{
+      #${ID_CONTAINER} .gh-shortcut-link span{
         white-space:nowrap;
       }
       #${ID_CONTAINER} svg{ flex:0 0 auto; }`;
@@ -59,29 +59,27 @@
   const createContainer = () => {
     const wrap = document.createElement('div');
     wrap.id = ID_CONTAINER;
-    wrap.className = 'd-flex flex-items-center gap-2 px-2';
+    wrap.className = 'gh-shortcuts-container';
     return wrap;
   };
 
   const resolveMountPoint = () => {
-    const host = location.hostname;
-    if (host === 'gist.github.com') {
-      const bell = document.querySelector('notification-indicator, .notification-indicator');
-      const bellItem = bell ? bell.closest('.Header-item') : null;
-      if (bellItem && bellItem.parentElement)
-        return { parent: bellItem.parentElement, beforeNode: bellItem };
-      return { parent: null, beforeNode: null };
-    }
-    const end = document.querySelector('.AppHeader-globalBar-end');
-    if (end && end.parentElement) return { parent: end.parentElement, beforeNode: end };
-    return { parent: null, beforeNode: null };
+    const nav = document.querySelector('nav[aria-label="Breadcrumbs"]');
+    if (!nav) return { parent: null, beforeNode: null };
+
+    const ol = nav.querySelector('ol');
+    if (!ol) return { parent: null, beforeNode: null };
+
+    return {
+      parent: nav,
+      beforeNode: ol.nextSibling
+    };
   };
 
   const createButton = (info) => {
     const a = document.createElement('a');
     a.href = info.href(getUserLogin());
-    a.className =
-      'AppHeader-link d-flex flex-items-center gap-2 no-underline color-fg-muted hover-color-fg-default';
+    a.className = 'gh-shortcut-link no-underline color-fg-muted hover-color-fg-default';
     a.style.margin = '0 5px';
     a.title = info.tooltip || info.title;
     a.innerHTML = `
@@ -217,7 +215,7 @@
   const placeShortcuts = () => {
     if (document.getElementById(ID_CONTAINER)) return;
     const { parent, beforeNode } = resolveMountPoint();
-    if (!parent || !beforeNode) return;
+    if (!parent) return;
     const container = createContainer();
     (CONFIG.order || Object.keys(BUTTONS)).forEach((key) => {
       const info = BUTTONS[key];
@@ -225,7 +223,7 @@
       if (CONFIG[key]) container.appendChild(createButton(info));
     });
     injectCSS();
-    parent.insertBefore(container, beforeNode);
+    parent.insertBefore(container, beforeNode || null);
   };
 
   (() => {
