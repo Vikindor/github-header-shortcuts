@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GitHub - Enhanced Shortcuts & Header Toolbar
 // @namespace    github-header-shortcuts
-// @version      1.2.7
+// @version      1.2.8
 // @description  Extends GitHub navigation: adds a header toolbar and fixes native shortcuts to work on any keyboard layout
 // @author       Vikindor (https://vikindor.github.io/)
 // @homepageURL  https://github.com/Vikindor/github-header-shortcuts/
@@ -26,7 +26,7 @@
     enterprises: true,
     issues: true,
     pulls: true,
-    order: ['repositories', 'projects', 'packages', 'stars', 'gists', 'organizations', 'enterprises', 'issues', 'pulls'],
+    order: ['repositories', 'projects', 'packages', 'stars', 'gists', 'organizations', 'enterprises', 'issues', 'pulls']
   };
 
   const ID_CONTAINER = 'gh-shortcuts-between-start-end';
@@ -153,8 +153,7 @@
       icon: 'git-pull-request',
       href: () => 'https://github.com/pulls',
       path: 'M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z',
-    },
-
+    }
   };
 
   const NON_REPO_FIRST = new Set([
@@ -207,7 +206,7 @@
     'KeyG KeyS': () => { const u = getUserLogin(); if (!u) return false; location.href = `https://github.com/${u}?tab=stars`; return true; },
     'KeyG KeyJ': () => { const u = getUserLogin(); if (!u) return false; location.href = `https://gist.github.com/${u}`; return true; },
     'KeyG KeyO': () => { location.href = 'https://github.com/settings/organizations'; return true; },
-    'KeyG KeyE': () => { location.href = 'https://github.com/settings/enterprises'; return true; },
+    'KeyG KeyE': () => { location.href = 'https://github.com/settings/enterprises'; return true; }
   };
 
   const HOTKEY_MAP = new Map(Object.entries(GITHUB_SHORTCUTS));
