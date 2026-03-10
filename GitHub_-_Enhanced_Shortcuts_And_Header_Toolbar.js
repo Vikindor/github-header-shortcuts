@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GitHub - Enhanced Shortcuts & Header Toolbar
 // @namespace    github-header-shortcuts
-// @version      1.2.8
+// @version      1.2.9
 // @description  Extends GitHub navigation: adds a header toolbar and fixes native shortcuts to work on any keyboard layout
 // @author       Vikindor (https://vikindor.github.io/)
 // @homepageURL  https://github.com/Vikindor/github-header-shortcuts/
@@ -57,16 +57,27 @@
     document.querySelector('meta[name="user-login"]')?.getAttribute('content')?.trim() || '';
 
   const createContainer = () => {
-    const wrap = document.createElement('div');
-    wrap.id = ID_CONTAINER;
-    wrap.className = 'gh-shortcuts-container';
-    return wrap;
+    const container = document.createElement('div');
+    container.id = ID_CONTAINER;
+	container.style.marginLeft = 'auto';
+    container.className = 'gh-shortcuts-container';
+    return container;
   };
 
   const resolveMountPoint = () => {
+    // Gist layout
+    const gistNav = document.querySelector('nav[aria-label="Global"]');
+    if (gistNav) {
+      return {
+        parent: gistNav.parentElement,
+        beforeNode: gistNav.nextSibling
+      };
+    }
+
+    // GitHub layout
     const nav = document.querySelector('nav[aria-label="Breadcrumbs"]');
     if (!nav) return { parent: null, beforeNode: null };
-
+  
     const ol = nav.querySelector('ol');
     if (!ol) return { parent: null, beforeNode: null };
 
