@@ -12,7 +12,8 @@ Userscript for browsers that extends GitHub navigation with a customizable heade
 - Repo-context awareness — switches between repository tabs or global pages automatically
 - Custom shortcuts for personal sections (Repositories, Stars, Packages, Gists, etc.)
 - Configurable buttons in the `CONFIG` block with adjustable order
-- Automatically restores after PJAX (SPA) navigations
+- Automatically restores after GitHub Turbo/PJAX navigations and delayed header re-renders
+- Responsive toolbar labels: switches from full labels to short labels or icons-only when header space becomes tight
 - Native GitHub styling, dark/light theme support
 
 ## 🖼 Screenshot
