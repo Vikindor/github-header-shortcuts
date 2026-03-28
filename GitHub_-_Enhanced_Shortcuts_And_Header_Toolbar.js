@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GitHub - Enhanced Shortcuts & Header Toolbar
 // @namespace    github-header-shortcuts
-// @version      1.2.12
+// @version      1.3.0
 // @description  Extends GitHub navigation: adds a header toolbar and fixes native shortcuts to work on any keyboard layout
 // @author       Vikindor (https://vikindor.github.io/)
 // @homepageURL  https://github.com/Vikindor/github-header-shortcuts/
@@ -50,6 +50,9 @@
       #${ID_CONTAINER} .gh-shortcut-link span{
         white-space:nowrap;
       }
+      #${ID_CONTAINER}[data-mode="icons"] .gh-shortcut-link span{
+        display:none;
+      }
       #${ID_CONTAINER} svg{ flex:0 0 auto; }`;
     document.head.appendChild(style);
   };
@@ -88,12 +91,18 @@
     };
   };
 
+  const resolveCollisionAnchor = () =>
+    document.querySelector('nav[aria-label="Breadcrumbs"] ol')
+    || document.querySelector('nav[aria-label="Global"]');
+
   const createButton = (info) => {
     const a = document.createElement('a');
     a.href = info.href(getUserLogin());
     a.className = 'gh-shortcut-link no-underline color-fg-muted hover-color-fg-default';
     a.style.margin = '0 5px';
     a.title = info.tooltip || info.title;
+    a.dataset.fullTitle = info.title;
+    a.dataset.shortTitle = info.shortTitle || info.title;
     a.innerHTML = `
       <svg aria-hidden="true" height="16" width="16" viewBox="0 0 16 16" class="octicon octicon-${info.icon}">
         <path d="${info.path}"></path>
@@ -105,6 +114,7 @@
   const BUTTONS = {
     repositories: {
       title: 'Repositories',
+      shortTitle: 'Repos',
       tooltip: 'Repositories (G + R)',
       icon: 'repo',
       href: (user) => `https://github.com/${user}?tab=repositories`,
@@ -112,6 +122,7 @@
     },
     projects: {
       title: 'Projects',
+      shortTitle: 'Proj',
       tooltip: 'Projects (G + T)',
       icon: 'table',
       href: (user) => `https://github.com/${user}?tab=projects`,
@@ -119,6 +130,7 @@
     },
     packages: {
       title: 'Packages',
+      shortTitle: 'Pkg',
       tooltip: 'Packages (G + K)',
       icon: 'package',
       href: (user) => `https://github.com/${user}?tab=packages`,
@@ -126,6 +138,7 @@
     },
     stars: {
       title: 'Stars',
+      shortTitle: 'Stars',
       tooltip: 'Stars (G + S)',
       icon: 'star',
       href: (user) => `https://github.com/${user}?tab=stars`,
@@ -133,6 +146,7 @@
     },
     gists: {
       title: 'Gists',
+      shortTitle: 'Gists',
       tooltip: 'Gists (G + J)',
       icon: 'gist',
       href: (user) => `https://gist.github.com/${user}`,
@@ -140,6 +154,7 @@
     },
     organizations: {
       title: 'Organizations',
+      shortTitle: 'Orgs',
       tooltip: 'Organizations (G + O)',
       icon: 'organization',
       href: () => 'https://github.com/settings/organizations',
@@ -147,6 +162,7 @@
     },
     enterprises: {
       title: 'Enterprises',
+      shortTitle: 'Ent',
       tooltip: 'Enterprises (G + E)',
       icon: 'globe',
       href: () => 'https://github.com/settings/enterprises',
@@ -154,6 +170,7 @@
     },
     issues: {
       title: 'Issues',
+      shortTitle: 'Issues',
       tooltip: 'Issues (G + I)',
       icon: 'issue-opened',
       href: () => 'https://github.com/issues',
@@ -161,6 +178,7 @@
     },
     pulls: {
       title: 'Pull requests',
+      shortTitle: 'PRs',
       tooltip: 'Pull requests (G + P)',
       icon: 'git-pull-request',
       href: () => 'https://github.com/pulls',
@@ -224,7 +242,9 @@
   const HOTKEY_MAP = new Map(Object.entries(GITHUB_SHORTCUTS));
 
   let mountObserver = null;
+  let resizeObserver = null;
   let scheduledPlacement = false;
+  let scheduledCompactCheck = false;
 
   const placeShortcuts = () => {
 	if (!getUserLogin()) return;
@@ -241,12 +261,80 @@
     parent.insertBefore(container, beforeNode || null);
   };
 
+  const setButtonLabels = (mode) => {
+    const container = document.getElementById(ID_CONTAINER);
+    if (!container) return;
+
+    container.dataset.mode = mode;
+    container.querySelectorAll('.gh-shortcut-link').forEach((link) => {
+      const label = link.querySelector('span');
+      if (!label) return;
+      label.textContent = mode === 'short'
+        ? (link.dataset.shortTitle || link.dataset.fullTitle || '')
+        : (link.dataset.fullTitle || '');
+    });
+  };
+
+  const hasCollision = () => {
+    const container = document.getElementById(ID_CONTAINER);
+    const anchor = resolveCollisionAnchor();
+    if (!container || !anchor) return false;
+
+    const anchorRect = anchor.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    return containerRect.left - anchorRect.right < 1;
+  };
+
+  const scheduleCompactCheck = () => {
+    if (scheduledCompactCheck) return;
+    scheduledCompactCheck = true;
+    requestAnimationFrame(() => {
+      scheduledCompactCheck = false;
+
+      const container = document.getElementById(ID_CONTAINER);
+      if (!container) return;
+
+      if (!resolveCollisionAnchor()) {
+        setButtonLabels('full');
+        return;
+      }
+
+      let nextMode = 'icons';
+      for (const mode of ['full', 'short', 'icons']) {
+        setButtonLabels(mode);
+        if (!hasCollision()) {
+          nextMode = mode;
+          break;
+        }
+      }
+
+      setButtonLabels(nextMode);
+    });
+  };
+
+  const watchLayout = () => {
+    if (!resizeObserver && typeof ResizeObserver === 'function') {
+      resizeObserver = new ResizeObserver(() => scheduleCompactCheck());
+    }
+    if (!resizeObserver) return;
+
+    resizeObserver.disconnect();
+
+    const container = document.getElementById(ID_CONTAINER);
+    const anchor = resolveCollisionAnchor();
+
+    if (container) resizeObserver.observe(container);
+    if (anchor) resizeObserver.observe(anchor);
+  };
+
   const schedulePlacement = () => {
     if (scheduledPlacement) return;
     scheduledPlacement = true;
     requestAnimationFrame(() => {
       scheduledPlacement = false;
       placeShortcuts();
+      watchLayout();
+      scheduleCompactCheck();
     });
   };
 
@@ -274,6 +362,7 @@
 
     window.addEventListener('popstate', schedulePlacement);
     window.addEventListener('pageshow', schedulePlacement);
+    window.addEventListener('resize', scheduleCompactCheck);
     document.addEventListener('turbo:render', schedulePlacement);
     document.addEventListener('turbo:load', schedulePlacement);
     document.addEventListener('pjax:end', schedulePlacement);
