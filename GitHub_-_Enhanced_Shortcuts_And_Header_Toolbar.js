@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GitHub - Enhanced Shortcuts & Header Toolbar
 // @namespace    github-header-shortcuts
-// @version      1.2.10
+// @version      1.2.11
 // @description  Extends GitHub navigation: adds a header toolbar and fixes native shortcuts to work on any keyboard layout
 // @author       Vikindor (https://vikindor.github.io/)
 // @homepageURL  https://github.com/Vikindor/github-header-shortcuts/
@@ -222,6 +222,9 @@
 
   const HOTKEY_MAP = new Map(Object.entries(GITHUB_SHORTCUTS));
 
+  let mountObserver = null;
+  let scheduledPlacement = false;
+
   const placeShortcuts = () => {
 	if (!getUserLogin()) return;
     if (document.getElementById(ID_CONTAINER)) return;
@@ -235,6 +238,44 @@
     });
     injectCSS();
     parent.insertBefore(container, beforeNode || null);
+  };
+
+  const schedulePlacement = () => {
+    if (scheduledPlacement) return;
+    scheduledPlacement = true;
+    requestAnimationFrame(() => {
+      scheduledPlacement = false;
+      placeShortcuts();
+    });
+  };
+
+  const startMountObserver = () => {
+    if (mountObserver) return;
+    mountObserver = new MutationObserver(() => {
+      if (!document.getElementById(ID_CONTAINER)) schedulePlacement();
+    });
+
+    try {
+      mountObserver.observe(document.documentElement, { childList: true, subtree: true });
+    } catch {}
+  };
+
+  const installNavigationHooks = () => {
+    const { pushState, replaceState } = history;
+    const wrapHistoryMethod = (method) => function (...args) {
+      const result = method.apply(this, args);
+      schedulePlacement();
+      return result;
+    };
+
+    history.pushState = wrapHistoryMethod(pushState);
+    history.replaceState = wrapHistoryMethod(replaceState);
+
+    window.addEventListener('popstate', schedulePlacement);
+    window.addEventListener('pageshow', schedulePlacement);
+    document.addEventListener('turbo:render', schedulePlacement);
+    document.addEventListener('turbo:load', schedulePlacement);
+    document.addEventListener('pjax:end', schedulePlacement);
   };
 
   (() => {
@@ -261,10 +302,7 @@
     });
   })();
 
-  const observer = new MutationObserver(() => {
-    if (!document.getElementById(ID_CONTAINER)) placeShortcuts();
-  });
-
-  placeShortcuts();
-  observer.observe(document.documentElement, { childList: true, subtree: true });
+  startMountObserver();
+  installNavigationHooks();
+  schedulePlacement();
 })();
