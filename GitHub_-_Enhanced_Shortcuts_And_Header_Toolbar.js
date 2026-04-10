@@ -6,7 +6,7 @@
 // @author       Vikindor (https://vikindor.github.io/)
 // @homepageURL  https://github.com/Vikindor/github-header-shortcuts/
 // @supportURL   https://github.com/Vikindor/github-header-shortcuts/issues
-// @license      MIT
+// @license      GPL-3.0
 // @match        https://github.com/*
 // @match        https://gist.github.com/*
 // @grant        none
